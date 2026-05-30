@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scholarship Tracker · Class of 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --green-dark:  #1a3a2a;
+    --green-med:   #2d5a3d;
+    --green-light: #618158;
+    --green-pale:  #eaf3ec;
+    --gold:        #c8963a;
+    --cream:       #f8f6f1;
+    --cream-mid:   #ede9e1;
+    --text:        #1a2a1e;
+    --text-mid:    #4a5a4e;
+    --text-light:  #8a9a8e;
+    --white:       #ffffff;
+
+    --status-none-bg:   #f1f5f9; --status-none-txt:   #64748b; --status-none-dot:   #cbd5e1;
+    --status-prog-bg:   #fef9c3; --status-prog-txt:   #854d0e; --status-prog-dot:   #eab308;
+    --status-sub-bg:    #dbeafe; --status-sub-txt:    #1e40af; --status-sub-dot:    #3b82f6;
+    --status-won-bg:    #dcfce7; --status-won-txt:    #166534; --status-won-dot:    #22c55e;
+    --status-skip-bg:   #fee2e2; --status-skip-txt:   #991b1b; --status-skip-dot:   #ef4444;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-med) 55%, #1e4a30 100%);
+    padding: 40px 24px 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .header-inner { max-width: 860px; margin: 0 auto; position: relative; }
+  .header-eyebrow {
+    font-size: 11px; letter-spacing: 4px; color: #a3c4a8;
+    text-transform: uppercase; margin-bottom: 10px; font-weight: 500;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 5vw, 36px);
+    color: var(--white); line-height: 1.15; margin-bottom: 6px;
+  }
+  header p {
+    font-size: 13px; color: #c4d9c7; font-weight: 300; margin-bottom: 28px;
+  }
+
+  /* Progress */
+  .progress-wrap {
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 12px; padding: 16px 20px;
+  }
+  .progress-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px; flex-wrap: wrap; gap: 8px;
+  }
+  .progress-stats { display: flex; gap: 18px; flex-wrap: wrap; }
+  .stat { font-size: 12px; color: #c4d9c7; }
+  .stat strong { color: #fff; font-size: 15px; display: block; }
+  .progress-pct { font-size: 22px; font-weight: 700; color: #7ecf8e; font-family: 'Playfair Display', serif; }
+  .progress-bar-track {
+    background: rgba(0,0,0,.25); border-radius: 99px; height: 8px; overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%; border-radius: 99px;
+    background: linear-gradient(90deg, #5cb87a, #7ecf8e);
+    transition: width .6s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ── FILTERS ── */
+  .filters-bar {
+    background: var(--white);
+    border-bottom: 1px solid var(--cream-mid);
+    position: sticky; top: 0; z-index: 20;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  }
+  .filters-inner {
+    max-width: 860px; margin: 0 auto;
+    padding: 10px 20px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+  }
+  .filter-label {
+    font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--text-light); font-weight: 600; margin-right: 2px;
+  }
+  .divider { width: 1px; height: 20px; background: var(--cream-mid); margin: 0 6px; }
+  .chip {
+    padding: 5px 13px; border-radius: 99px; border: 1.5px solid var(--cream-mid);
+    background: transparent; color: var(--text-mid); font-size: 12px;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 400;
+    transition: all .15s; white-space: nowrap;
+  }
+  .chip:hover { border-color: var(--green-light); color: var(--green-med); }
+  .chip.active {
+    background: var(--green-med); border-color: var(--green-med);
+    color: var(--white); font-weight: 600;
+  }
+
+  /* ── MAIN ── */
+  main { max-width: 860px; margin: 0 auto; padding: 28px 16px 64px; }
+
+  /* Category section */
+  .cat-section { margin-bottom: 36px; }
+  .cat-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 14px;
+  }
+  .cat-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--green-med); white-space: nowrap;
+  }
+  .cat-line { flex: 1; height: 1px; background: var(--cream-mid); }
+  .cat-count { font-size: 11px; color: var(--text-light); }
+
+  /* Card */
+  .card {
+    background: var(--white); border-radius: 12px;
+    border: 1.5px solid var(--cream-mid);
+    box-shadow: 0 1px 4px rgba(0,0,0,.04);
+    margin-bottom: 10px; overflow: hidden;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+  .card.status-in-progress { border-color: #fde68a; }
+  .card.status-submitted   { border-color: #93c5fd; }
+  .card.status-won         { border-color: #86efac; box-shadow: 0 2px 12px rgba(34,197,94,.12); }
+  .card.status-not-eligible{ border-color: #fca5a5; }
+
+  .card-main {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 15px 16px; cursor: pointer; user-select: none;
+  }
+
+  /* Status dot / icon */
+  .status-dot {
+    width: 22px; height: 22px; border-radius: 5px;
+    border: 2px solid var(--cream-mid); flex-shrink: 0; margin-top: 2px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; transition: all .2s;
+  }
+  .status-dot.none     { border-color: #cbd5e1; background: transparent; }
+  .status-dot.progress { border-color: #eab308; background: #eab308; color: #fff; font-size: 10px; }
+  .status-dot.submitted{ border-color: #3b82f6; background: #3b82f6; color: #fff; }
+  .status-dot.won      { border-color: #22c55e; background: #22c55e; color: #fff; font-size: 11px; }
+  .status-dot.ineligible{ border-color: #ef4444; background: #ef4444; color: #fff; font-size: 10px; }
+
+  .card-body { flex: 1; min-width: 0; }
+  .card-name {
+    font-size: 15px; font-weight: 600; color: var(--text);
+    line-height: 1.3; margin-bottom: 5px;
+  }
+  .card.status-not-eligible .card-name { text-decoration: line-through; color: var(--text-light); }
+  .card-meta { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .card-amount { font-size: 13px; font-weight: 700; color: var(--green-med); }
+  .card-deadline { font-size: 12px; color: var(--text-light); }
+  .badge {
+    font-size: 10px; border-radius: 4px; padding: 2px 7px;
+    font-weight: 700; white-space: nowrap;
+  }
+  .badge-essay { background: #faf0e6; color: #7c4f1e; border: 1px solid #f0d9c0; }
+  .badge-urgent { background: #fef3c7; color: #92400e; }
+  .badge-soon   { background: #e0f2fe; color: #0c4a6e; }
+
+  .card-note-preview {
+    margin-top: 6px; font-size: 12px; color: var(--text-light);
+    font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+
+  .card-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .status-pill {
+    font-size: 11px; font-weight: 600; border-radius: 6px; padding: 3px 9px;
+    white-space: nowrap;
+  }
+  .chevron { color: var(--text-light); font-size: 11px; transition: transform .2s; }
+  .card.open .chevron { transform: rotate(180deg); }
+
+  /* Expanded panel */
+  .card-panel {
+    display: none; padding: 0 16px 18px 52px;
+    border-top: 1px solid var(--cream-mid); animation: slideDown .18s ease;
+  }
+  .card.open .card-panel { display: block; }
+  @keyframes slideDown { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
+  .panel-detail { font-size: 12px; color: var(--text-mid); line-height: 1.7; margin-top: 13px; }
+  .panel-detail strong { color: var(--text); }
+  .panel-url {
+    font-family: 'Courier New', monospace; font-size: 11px;
+    background: var(--cream); padding: 2px 6px; border-radius: 3px;
+    color: var(--green-med); word-break: break-all;
+  }
+
+  .panel-section-label {
+    font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--text-light); font-weight: 700; margin: 14px 0 7px;
+  }
+
+  /* Status buttons */
+  .status-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+  .status-btn {
+    padding: 5px 13px; border-radius: 99px; border: 1.5px solid var(--cream-mid);
+    background: transparent; color: var(--text-mid); font-size: 12px;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s;
+  }
+  .status-btn:hover { border-color: var(--green-light); }
+  .status-btn.active-none     { background: #f1f5f9; border-color: #cbd5e1; color: #64748b; font-weight: 700; }
+  .status-btn.active-progress { background: #fef9c3; border-color: #eab308; color: #854d0e; font-weight: 700; }
+  .status-btn.active-submitted{ background: #dbeafe; border-color: #3b82f6; color: #1e40af; font-weight: 700; }
+  .status-btn.active-won      { background: #dcfce7; border-color: #22c55e; color: #166534; font-weight: 700; }
+  .status-btn.active-ineligible{ background: #fee2e2; border-color: #ef4444; color: #991b1b; font-weight: 700; }
+
+  /* Notes input */
+  .notes-area {
+    width: 100%; padding: 9px 12px; border-radius: 8px;
+    border: 1.5px dashed var(--cream-mid); background: var(--cream);
+    font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text);
+    resize: vertical; min-height: 52px; outline: none; transition: border-color .2s;
+    line-height: 1.5;
+  }
+  .notes-area::placeholder { color: #bbb; font-style: italic; }
+  .notes-area:focus { border-color: var(--green-light); border-style: solid; }
+
+  /* Empty state */
+  .empty { text-align: center; padding: 60px 20px; color: var(--text-light); }
+  .empty-icon { font-size: 36px; margin-bottom: 12px; }
+
+  /* Footer tip */
+  .tip-box {
+    margin-top: 36px; padding: 20px 24px;
+    background: var(--green-dark); border-radius: 12px;
+    color: #c4d9c7; font-size: 13px; line-height: 1.8;
+  }
+  .tip-box strong { color: var(--white); }
+
+  /* Reset button */
+  .reset-btn {
+    margin-top: 24px; display: block; width: 100%; padding: 10px;
+    border: 1.5px dashed #ccc; border-radius: 8px; background: transparent;
+    color: var(--text-light); font-size: 12px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; transition: all .15s;
+  }
+  .reset-btn:hover { border-color: #ef4444; color: #ef4444; }
+
+  @media (max-width: 520px) {
+    .card-main { gap: 10px; padding: 13px 12px; }
+    .card-panel { padding-left: 44px; }
+    .status-pill { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-eyebrow">Class of 2026 · High School Seniors</div>
+    <h1>Scholarship Tracker</h1>
+    <p>May–June 2026 Deadlines · 20 Opportunities · Source: Miss Laverne's Substack</p>
+    <div class="progress-wrap">
+      <div class="progress-row">
+        <div class="progress-stats">
+          <div class="stat"><strong id="cnt-submitted">0</strong>Submitted / Won</div>
+          <div class="stat"><strong id="cnt-progress">0</strong>In Progress</div>
+          <div class="stat"><strong id="cnt-remaining">20</strong>Remaining</div>
+        </div>
+        <div class="progress-pct" id="pct-label">0%</div>
+      </div>
+      <div class="progress-bar-track">
+        <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="filters-bar">
+  <div class="filters-inner">
+    <span class="filter-label">Category</span>
+    <button class="chip active" data-cat="All">All</button>
+    <button class="chip" data-cat="May 2026">📅 May</button>
+    <button class="chip" data-cat="June 2026">📅 June</button>
+    <button class="chip" data-cat="Platforms">🏆 Platforms</button>
+    <button class="chip" data-cat="Local">🎯 Local</button>
+    <div class="divider"></div>
+    <span class="filter-label">Status</span>
+    <button class="chip active" data-status="All">All</button>
+    <button class="chip" data-status="Not Started">Not Started</button>
+    <button class="chip" data-status="In Progress">In Progress</button>
+    <button class="chip" data-status="Submitted">Submitted</button>
+    <button class="chip" data-status="Won">Won</button>
+    <button class="chip" data-status="Not Eligible">Not Eligible</button>
+  </div>
+</div>
+
+<main id="main-content"></main>
+
+<script>
+const SCHOLARSHIPS = [
+  { id:1,  cat:"May 2026",  name:"College Here I Come Scholarship",              amount:"$1,000",        deadline:"May 31, 2026",     daysLeft:13, essay:true,  url:"scholarships360.org",                               desc:"Essay quality + scholarship activity on platform. Open to US high school seniors in the graduating class of 2026." },
+  { id:2,  cat:"May 2026",  name:"First-Generation College Student Scholarship",  amount:"$500–$5,000",   deadline:"May 31, 2026",     daysLeft:13, essay:true,  url:"Bold.org / Fastweb",                                desc:"Must be first-gen, demonstrate financial need, have a 2.5+ GPA, and intend to enroll full-time at a four-year institution." },
+  { id:3,  cat:"May 2026",  name:"RealtyHop Scholarship",                         amount:"Up to $2,000",  deadline:"Rolling May–June",  daysLeft:30, essay:true,  url:"realtyhop.com/scholarship",                         desc:"Open to US high school seniors pursuing a bachelor's or associate degree. Demonstrate ambition, leadership, and entrepreneurial spirit." },
+  { id:4,  cat:"June 2026", name:"USC Full Financial Aid",                         amount:"Full Aid",       deadline:"June 1, 2026",      daysLeft:14, essay:false, url:"usc.edu/financialaid",                               desc:"Incoming freshmen applying to USC for fall. FAFSA or Dream Act required. Strong community awareness and volunteer record valued." },
+  { id:5,  cat:"June 2026", name:"Duck Brand Stuck at Prom",                      amount:"$10,000",       deadline:"June 2026",         daysLeft:44, essay:false, url:"duckbrand.com/stuck-at-prom",                        desc:"Create promwear made entirely of Duck Tape for a chance to win big. Celebrating its 26th anniversary — creative and memorable." },
+  { id:6,  cat:"June 2026", name:"Community Justice Leadership Scholarship",      amount:"$5,000",        deadline:"June 30, 2026",     daysLeft:43, essay:true,  url:"Bold.org",                                           desc:"High school seniors and college students ages 27 and under. Active commitment to community justice work, public service, and leadership required." },
+  { id:7,  cat:"June 2026", name:"Rover Pet Scholarship",                         amount:"$2,500",        deadline:"June 2026",         daysLeft:44, essay:true,  url:"rover.com/scholarship",                              desc:"Write a 400–500 word essay for your chance to win. Fun and approachable topic — perfect for animal lovers." },
+  { id:8,  cat:"June 2026", name:"Fraser Institute Student Essay Contest",        amount:"$1,500",        deadline:"June 2026",         daysLeft:44, essay:true,  url:"fraserinstitute.org",                                desc:"Annual essay contest promoting student participation in economic discourse on current events and public policy." },
+  { id:9,  cat:"June 2026", name:"Gen and Kelly Tanabe Scholarship",              amount:"$1,000",        deadline:"June 30, 2026",     daysLeft:43, essay:true,  url:"collegescholarships.org",                            desc:"Merit-based program open to high school seniors. Short essay required." },
+  { id:10, cat:"June 2026", name:"Fountainhead Essay Contest",                    amount:"Up to $10,000", deadline:"June 2026",         daysLeft:44, essay:true,  url:"aynrand.org/students/essay-contests",                desc:"For high school juniors and seniors. Three essay prompt options available. Strong writers should prioritize this one." },
+  { id:11, cat:"June 2026", name:"Fastweb Video Scholarship",                     amount:"$1,000",        deadline:"June 30, 2026",     daysLeft:43, essay:false, url:"fastweb.com",                                        desc:"Submit a video of no more than 45 seconds. Animated videos are also considered." },
+  { id:12, cat:"Platforms", name:"Bold.org — Create Profile",                     amount:"Multiple",      deadline:"Ongoing",           daysLeft:null, essay:false, url:"bold.org/scholarships/by-year/high-school/seniors", desc:"Hundreds of open scholarships with new ones added weekly. Filter by identity, major, and interests. One profile, many applications." },
+  { id:13, cat:"Platforms", name:"Fastweb.com — Create Profile",                  amount:"Multiple",      deadline:"Ongoing",           daysLeft:null, essay:false, url:"fastweb.com",                                        desc:"One of the largest scholarship databases. Create a full profile and get automatically matched to awards." },
+  { id:14, cat:"Platforms", name:"Scholarships.com — June 2026",                  amount:"Multiple",      deadline:"Ongoing",           daysLeft:null, essay:false, url:"scholarships.com",                                   desc:"Searchable by deadline month. Filter specifically for June 2026 awards." },
+  { id:15, cat:"Platforms", name:"Cappex.com — Create Profile",                   amount:"Multiple",      deadline:"Ongoing",           daysLeft:null, essay:false, url:"cappex.com",                                         desc:"Strong for merit-based matches. Upload your GPA and activities for automatic matching." },
+  { id:16, cat:"Platforms", name:"Going Merry",                                    amount:"Multiple",      deadline:"Ongoing",           daysLeft:null, essay:false, url:"goingmerry.com",                                     desc:"Easy stacking platform — one application reaches multiple scholarships simultaneously." },
+  { id:17, cat:"Local",     name:"High School Counseling Office",                  amount:"Varies",        deadline:"Ask this week",     daysLeft:7, essay:false,  url:"—",                                                  desc:"Ask your counselor this week. Most schools have local foundation scholarships that go unclaimed every year because no one applies. Least competition of any award." },
+  { id:18, cat:"Local",     name:"Faith Community Scholarship",                    amount:"Varies",        deadline:"Ask now",           daysLeft:7, essay:false,  url:"—",                                                  desc:"Faith organizations frequently offer scholarships to members pursuing higher education. Ask your pastor, imam, or community leader directly." },
+  { id:19, cat:"Local",     name:"Parent's Employer Scholarship",                  amount:"Varies",        deadline:"Ask this week",     daysLeft:7, essay:false,  url:"—",                                                  desc:"Many companies offer scholarships to employees' children. Have your parent check with HR this week." },
+  { id:20, cat:"Local",     name:"Local Community Foundation",                     amount:"Varies",        deadline:"Varies",            daysLeft:null, essay:false, url:"Search: [city/county] community foundation scholarship 2026", desc:"Regional awards with far fewer applicants than national scholarships. Search your city or county community foundation." },
+];
+
+const CAT_LABELS = { "May 2026":"📅 May 2026", "June 2026":"📅 June 2026", "Platforms":"🏆 Platforms", "Local":"🎯 Local / Easy Wins" };
+const STATUS_OPTIONS = ["Not Started","In Progress","Submitted","Won","Not Eligible"];
+const STATUS_CLASS = { "Not Started":"none","In Progress":"progress","Submitted":"submitted","Won":"won","Not Eligible":"ineligible" };
+const STATUS_ICON  = { "Not Started":"","In Progress":"…","Submitted":"✓","Won":"★","Not Eligible":"✕" };
+const STORAGE_KEY  = "scholarship-tracker-2026";
+
+let state = { statuses:{}, notes:{} };
+
+function load() {
+  try { const s = localStorage.getItem(STORAGE_KEY); if (s) state = JSON.parse(s); } catch(_){}
+  // init defaults
+  SCHOLARSHIPS.forEach(s => { if (!state.statuses[s.id]) state.statuses[s.id] = "Not Started"; if (!state.notes) state.notes = {}; });
+}
+function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(_){} }
+
+let filterCat = "All", filterStatus = "All", openId = null;
+
+function urgencyBadge(s) {
+  if (s.daysLeft === null) return '';
+  if (s.daysLeft <= 7)  return `<span class="badge badge-urgent">🔥 ${s.daysLeft}d left</span>`;
+  if (s.daysLeft <= 21) return `<span class="badge badge-soon">${s.daysLeft}d left</span>`;
+  return `<span class="badge badge-soon" style="background:#f0fdf4;color:#166534">${s.daysLeft}d left</span>`;
+}
+
+function statusPillStyle(status) {
+  const map = {
+    "Not Started":  "background:#f1f5f9;color:#64748b",
+    "In Progress":  "background:#fef9c3;color:#854d0e",
+    "Submitted":    "background:#dbeafe;color:#1e40af",
+    "Won":          "background:#dcfce7;color:#166534",
+    "Not Eligible": "background:#fee2e2;color:#991b1b",
+  };
+  return map[status] || "";
+}
+
+function render() {
+  const main = document.getElementById('main-content');
+  const cats = ["May 2026","June 2026","Platforms","Local"];
+  const activeCats = filterCat === "All" ? cats : [filterCat];
+
+  let html = '';
+  let anyVisible = false;
+
+  activeCats.forEach(cat => {
+    const group = SCHOLARSHIPS.filter(s => {
+      if (s.cat !== cat) return false;
+      if (filterStatus !== "All" && state.statuses[s.id] !== filterStatus) return false;
+      return true;
+    });
+    if (group.length === 0) return;
+    anyVisible = true;
+
+    html += `<div class="cat-section">
+      <div class="cat-header">
+        <span class="cat-title">${CAT_LABELS[cat]}</span>
+        <div class="cat-line"></div>
+        <span class="cat-count">${group.length} scholarship${group.length>1?'s':''}</span>
+      </div>`;
+
+    group.forEach(s => {
+      const status = state.statuses[s.id] || "Not Started";
+      const sc = STATUS_CLASS[status];
+      const icon = STATUS_ICON[status];
+      const isOpen = openId === s.id;
+      const myNote = (state.notes[s.id] || '').trim();
+
+      const statusBtns = STATUS_OPTIONS.map(opt => {
+        const ac = status === opt ? `active-${STATUS_CLASS[opt]}` : '';
+        return `<button class="status-btn ${ac}" onclick="setStatus(${s.id},'${opt}');event.stopPropagation()">${opt}</button>`;
+      }).join('');
+
+      html += `
+      <div class="card status-${sc} ${isOpen?'open':''}" id="card-${s.id}">
+        <div class="card-main" onclick="toggleCard(${s.id})">
+          <div class="status-dot ${sc}">${icon}</div>
+          <div class="card-body">
+            <div class="card-name">${s.name}</div>
+            <div class="card-meta">
+              <span class="card-amount">${s.amount}</span>
+              <span class="card-deadline">· ${s.deadline}</span>
+              ${urgencyBadge(s)}
+              ${s.essay ? '<span class="badge badge-essay">Essay</span>' : ''}
+            </div>
+            ${myNote ? `<div class="card-note-preview">📝 ${myNote}</div>` : ''}
+          </div>
+          <div class="card-right">
+            <span class="status-pill" style="${statusPillStyle(status)}">${status}</span>
+            <span class="chevron">▼</span>
+          </div>
+        </div>
+        <div class="card-panel">
+          <div class="panel-detail">
+            <strong>Details:</strong> ${s.desc}<br><br>
+            <strong>Where to apply:</strong> <span class="panel-url">${s.url}</span>
+          </div>
+          <div class="panel-section-label">Update Status</div>
+          <div class="status-btns">${statusBtns}</div>
+          <div class="panel-section-label">My Notes</div>
+          <textarea class="notes-area" placeholder="Add notes — login info, essay ideas, account created…"
+            oninput="setNote(${s.id},this.value)"
+            onclick="event.stopPropagation()">${state.notes[s.id]||''}</textarea>
+        </div>
+      </div>`;
+    });
+
+    html += '</div>';
+  });
+
+  if (!anyVisible) {
+    html = `<div class="empty"><div class="empty-icon">🔍</div><p>No scholarships match these filters.</p></div>`;
+  }
+
+  html += `
+    <div class="tip-box">
+      <strong>💡 Miss Laverne's tip:</strong> Apply to every no-essay scholarship first — minutes each, 20 applications = 20 chances. Then work through essay-based awards where your story fits best. <strong>Keep going.</strong>
+    </div>
+    <button class="reset-btn" onclick="resetAll()">⚠️ Reset all progress (cannot be undone)</button>`;
+
+  main.innerHTML = html;
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = SCHOLARSHIPS.length;
+  const submitted = SCHOLARSHIPS.filter(s => ["Submitted","Won"].includes(state.statuses[s.id])).length;
+  const inProg = SCHOLARSHIPS.filter(s => state.statuses[s.id] === "In Progress").length;
+  const remaining = total - submitted;
+  const pct = Math.round((submitted / total) * 100);
+
+  document.getElementById('cnt-submitted').textContent = submitted;
+  document.getElementById('cnt-progress').textContent = inProg;
+  document.getElementById('cnt-remaining').textContent = remaining;
+  document.getElementById('pct-label').textContent = pct + '%';
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+function toggleCard(id) {
+  openId = openId === id ? null : id;
+  render();
+  if (openId) {
+    setTimeout(() => {
+      const el = document.getElementById(`card-${id}`);
+      if (el) el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    }, 50);
+  }
+}
+
+function setStatus(id, status) {
+  state.statuses[id] = status;
+  save();
+  render();
+  openId = id; // keep open
+  render();
+}
+
+function setNote(id, val) {
+  if (!state.notes) state.notes = {};
+  state.notes[id] = val;
+  save();
+  updateProgress();
+}
+
+function resetAll() {
+  if (!confirm('Reset all statuses and notes? This cannot be undone.')) return;
+  state = { statuses:{}, notes:{} };
+  SCHOLARSHIPS.forEach(s => { state.statuses[s.id] = "Not Started"; });
+  save(); openId = null; render();
+}
+
+// Filters
+document.querySelectorAll('[data-cat]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    filterCat = btn.dataset.cat;
+    document.querySelectorAll('[data-cat]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    openId = null; render();
+  });
+});
+document.querySelectorAll('[data-status]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    filterStatus = btn.dataset.status;
+    document.querySelectorAll('[data-status]').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    openId = null; render();
+  });
+});
+
+load(); render();
+</script>
+</body>
+</html>
