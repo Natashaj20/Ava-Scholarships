@@ -236,6 +236,33 @@
   .notes-area::placeholder { color: #bbb; font-style: italic; }
   .notes-area:focus { border-color: var(--green-light); border-style: solid; }
 
+  /* Hyperlinked URL */
+  a.panel-url {
+    color: var(--green-med); text-decoration: underline; text-decoration-color: var(--green-pale);
+    text-underline-offset: 2px; transition: color .15s;
+  }
+  a.panel-url:hover { color: var(--green-dark); text-decoration-color: var(--green-med); }
+
+  /* Not Eligible / Deadline Passed section */
+  .ineligible-section {
+    margin-top: 12px; margin-bottom: 36px;
+    border: 2px solid #fca5a5; border-radius: 14px;
+    background: #fff8f8; overflow: hidden;
+  }
+  .ineligible-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 18px 12px; background: #fee2e2;
+    border-bottom: 1px solid #fca5a5;
+  }
+  .ineligible-title {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: #991b1b; white-space: nowrap;
+  }
+  .ineligible-line { flex: 1; height: 1px; background: #fca5a5; }
+  .ineligible-count { font-size: 11px; color: #ef4444; }
+  .ineligible-cards { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .ineligible-section .card { margin-bottom: 0; opacity: .85; }
+
   /* Empty state */
   .empty { text-align: center; padding: 60px 20px; color: var(--text-light); }
   .empty-icon { font-size: 36px; margin-bottom: 12px; }
@@ -367,6 +394,52 @@ function statusPillStyle(status) {
   return map[status] || "";
 }
 
+function buildCard(s) {
+  const status = state.statuses[s.id] || "Not Started";
+  const sc = STATUS_CLASS[status];
+  const icon = STATUS_ICON[status];
+  const isOpen = openId === s.id;
+  const myNote = (state.notes[s.id] || '').trim();
+
+  const statusBtns = STATUS_OPTIONS.map(opt => {
+    const ac = status === opt ? `active-${STATUS_CLASS[opt]}` : '';
+    return `<button class="status-btn ${ac}" onclick="setStatus(${s.id},'${opt}');event.stopPropagation()">${opt}</button>`;
+  }).join('');
+
+  return `
+  <div class="card status-${sc} ${isOpen?'open':''}" id="card-${s.id}">
+    <div class="card-main" onclick="toggleCard(${s.id})">
+      <div class="status-dot ${sc}">${icon}</div>
+      <div class="card-body">
+        <div class="card-name">${s.name}</div>
+        <div class="card-meta">
+          <span class="card-amount">${s.amount}</span>
+          <span class="card-deadline">· ${s.deadline}</span>
+          ${urgencyBadge(s)}
+          ${s.essay ? '<span class="badge badge-essay">Essay</span>' : ''}
+        </div>
+        ${myNote ? `<div class="card-note-preview">📝 ${myNote}</div>` : ''}
+      </div>
+      <div class="card-right">
+        <span class="status-pill" style="${statusPillStyle(status)}">${status}</span>
+        <span class="chevron">▼</span>
+      </div>
+    </div>
+    <div class="card-panel">
+      <div class="panel-detail">
+        <strong>Details:</strong> ${s.desc}<br><br>
+        <strong>Where to apply:</strong> ${s.url === '—' ? '<span class="panel-url">—</span>' : `<a class="panel-url" href="${s.url.startsWith('http') ? s.url : 'https://' + s.url}" target="_blank" rel="noopener">${s.url}</a>`}
+      </div>
+      <div class="panel-section-label">Update Status</div>
+      <div class="status-btns">${statusBtns}</div>
+      <div class="panel-section-label">My Notes</div>
+      <textarea class="notes-area" placeholder="Add notes — login info, essay ideas, account created…"
+        oninput="setNote(${s.id},this.value)"
+        onclick="event.stopPropagation()">${state.notes[s.id]||''}</textarea>
+    </div>
+  </div>`;
+}
+
 function render() {
   const main = document.getElementById('main-content');
   const cats = ["May 2026","June 2026","Platforms","Local"];
@@ -375,9 +448,15 @@ function render() {
   let html = '';
   let anyVisible = false;
 
+  // Collect ineligible IDs upfront so we can exclude them from normal sections
+  const ineligibleIds = new Set(
+    SCHOLARSHIPS.filter(s => state.statuses[s.id] === "Not Eligible").map(s => s.id)
+  );
+
   activeCats.forEach(cat => {
     const group = SCHOLARSHIPS.filter(s => {
       if (s.cat !== cat) return false;
+      if (ineligibleIds.has(s.id)) return false; // excluded — goes to bottom box
       if (filterStatus !== "All" && state.statuses[s.id] !== filterStatus) return false;
       return true;
     });
@@ -392,63 +471,32 @@ function render() {
       </div>`;
 
     group.forEach(s => {
-      const status = state.statuses[s.id] || "Not Started";
-      const sc = STATUS_CLASS[status];
-      const icon = STATUS_ICON[status];
-      const isOpen = openId === s.id;
-      const myNote = (state.notes[s.id] || '').trim();
-
-      const statusBtns = STATUS_OPTIONS.map(opt => {
-        const ac = status === opt ? `active-${STATUS_CLASS[opt]}` : '';
-        return `<button class="status-btn ${ac}" onclick="setStatus(${s.id},'${opt}');event.stopPropagation()">${opt}</button>`;
-      }).join('');
-
-      html += `
-      <div class="card status-${sc} ${isOpen?'open':''}" id="card-${s.id}">
-        <div class="card-main" onclick="toggleCard(${s.id})">
-          <div class="status-dot ${sc}">${icon}</div>
-          <div class="card-body">
-            <div class="card-name">${s.name}</div>
-            <div class="card-meta">
-              <span class="card-amount">${s.amount}</span>
-              <span class="card-deadline">· ${s.deadline}</span>
-              ${urgencyBadge(s)}
-              ${s.essay ? '<span class="badge badge-essay">Essay</span>' : ''}
-            </div>
-            ${myNote ? `<div class="card-note-preview">📝 ${myNote}</div>` : ''}
-          </div>
-          <div class="card-right">
-            <span class="status-pill" style="${statusPillStyle(status)}">${status}</span>
-            <span class="chevron">▼</span>
-          </div>
-        </div>
-        <div class="card-panel">
-          <div class="panel-detail">
-            <strong>Details:</strong> ${s.desc}<br><br>
-            <strong>Where to apply:</strong> <span class="panel-url">${s.url}</span>
-          </div>
-          <div class="panel-section-label">Update Status</div>
-          <div class="status-btns">${statusBtns}</div>
-          <div class="panel-section-label">My Notes</div>
-          <textarea class="notes-area" placeholder="Add notes — login info, essay ideas, account created…"
-            oninput="setNote(${s.id},this.value)"
-            onclick="event.stopPropagation()">${state.notes[s.id]||''}</textarea>
-        </div>
-      </div>`;
+      html += buildCard(s);
     });
 
     html += '</div>';
   });
 
+  // Not Eligible box — always shown at bottom when any exist, regardless of filter
+  const ineligibleItems = SCHOLARSHIPS.filter(s => ineligibleIds.has(s.id));
+  if (ineligibleItems.length > 0) {
+    anyVisible = true;
+    html += `<div class="ineligible-section">
+      <div class="ineligible-header">
+        <span class="ineligible-title">🚫 Not Eligible / Deadline Passed</span>
+        <div class="ineligible-line"></div>
+        <span class="ineligible-count">${ineligibleItems.length} item${ineligibleItems.length>1?'s':''}</span>
+      </div>
+      <div class="ineligible-cards">`;
+    ineligibleItems.forEach(s => { html += buildCard(s); });
+    html += `</div></div>`;
+  }
+
   if (!anyVisible) {
     html = `<div class="empty"><div class="empty-icon">🔍</div><p>No scholarships match these filters.</p></div>`;
   }
 
-  html += `
-    <div class="tip-box">
-      <strong>💡 Miss Laverne's tip:</strong> Apply to every no-essay scholarship first — minutes each, 20 applications = 20 chances. Then work through essay-based awards where your story fits best. <strong>Keep going.</strong>
-    </div>
-    <button class="reset-btn" onclick="resetAll()">⚠️ Reset all progress (cannot be undone)</button>`;
+  html += `<button class="reset-btn" onclick="resetAll()">⚠️ Reset all progress (cannot be undone)</button>`;
 
   main.innerHTML = html;
   updateProgress();
