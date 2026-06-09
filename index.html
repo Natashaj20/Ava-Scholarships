@@ -326,7 +326,7 @@
   <div class="header-inner">
     <div class="header-eyebrow">Class of 2026 · High School Seniors</div>
     <h1>Scholarship Tracker</h1>
-    <p>May–July 2026 Deadlines · 29 Opportunities · Includes HBCU &amp; Spelman Awards</p>
+    <p>May–July 2026 Deadlines · <span id="header-total">29</span> Opportunities · Includes HBCU &amp; Spelman Awards</p>
     <div class="progress-wrap">
       <div class="progress-row">
         <div class="progress-stats">
@@ -557,17 +557,20 @@ function render() {
 }
 
 function updateProgress() {
-  const total = SCHOLARSHIPS.length;
-  const submitted = SCHOLARSHIPS.filter(s => ["Submitted","Won"].includes(state.statuses[s.id])).length;
-  const inProg = SCHOLARSHIPS.filter(s => state.statuses[s.id] === "In Progress").length;
+  const deletedIds = new Set(state.deleted || []);
+  const active = SCHOLARSHIPS.filter(s => !deletedIds.has(s.id));
+  const total = active.length;
+  const submitted = active.filter(s => ["Submitted","Won"].includes(state.statuses[s.id])).length;
+  const inProg = active.filter(s => state.statuses[s.id] === "In Progress").length;
   const remaining = total - submitted;
-  const pct = Math.round((submitted / total) * 100);
+  const pct = total > 0 ? Math.round((submitted / total) * 100) : 0;
 
   document.getElementById('cnt-submitted').textContent = submitted;
   document.getElementById('cnt-progress').textContent = inProg;
   document.getElementById('cnt-remaining').textContent = remaining;
   document.getElementById('pct-label').textContent = pct + '%';
   document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('header-total').textContent = total;
 }
 
 function toggleCard(id) {
