@@ -8,9 +8,9 @@
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
 
   :root {
-    --pink-dark: #3a1a24;
-    --pink-med: #5a2c3b;
-    --pink-light: #815865;
+    --green-dark:  #1a3a2a;
+    --green-med:   #2d5a3d;
+    --green-light: #618158;
     --green-pale:  #eaf3ec;
     --gold:        #c8963a;
     --cream:       #f8f6f1;
@@ -38,7 +38,7 @@
 
   /* ── HEADER ── */
   header {
-    background: linear-gradient(135deg, var(--pink-dark) 0%, var(--pink-med) 55%, #1e4a30 100%);
+    background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-med) 55%, #1e4a30 100%);
     padding: 40px 24px 32px;
     position: relative;
     overflow: hidden;
@@ -275,6 +275,35 @@
   }
   .tip-box strong { color: var(--white); }
 
+  /* Congratulations banner */
+  .congrats-banner {
+    background: linear-gradient(135deg, #1a1a4e 0%, #2d2d8a 50%, #1a1a4e 100%);
+    border-bottom: 3px solid #c8963a;
+  }
+  .congrats-inner {
+    max-width: 860px; margin: 0 auto;
+    padding: 18px 24px; display: flex; gap: 16px; align-items: flex-start;
+  }
+  .congrats-icon { font-size: 28px; flex-shrink: 0; margin-top: 2px; }
+  .congrats-text {
+    font-size: 13.5px; line-height: 1.7; color: #e8e4f8;
+  }
+  .congrats-text strong { color: #f0d080; }
+
+  /* HBCU category accent */
+  .cat-section.cat-hbcu .cat-title { color: #2d2d8a; }
+  .cat-section.cat-hbcu .cat-line  { background: #c8963a; }
+
+  /* Delete button */
+  .delete-btn {
+    padding: 7px 16px; border-radius: 8px;
+    border: 1.5px solid #fca5a5; background: #fff8f8;
+    color: #991b1b; font-size: 12px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-weight: 500;
+    transition: all .15s;
+  }
+  .delete-btn:hover { background: #fee2e2; border-color: #ef4444; }
+
   /* Reset button */
   .reset-btn {
     margin-top: 24px; display: block; width: 100%; padding: 10px;
@@ -295,9 +324,9 @@
 
 <header>
   <div class="header-inner">
-    <div class="header-eyebrow">Class of 2026</div>
+    <div class="header-eyebrow">Class of 2026 · High School Seniors</div>
     <h1>Scholarship Tracker</h1>
-    <p>May–June 2026 Deadlines · 20 Opportunities · Source: Miss Laverne's Substack</p>
+    <p>May–July 2026 Deadlines · 29 Opportunities · Includes HBCU &amp; Spelman Awards</p>
     <div class="progress-wrap">
       <div class="progress-row">
         <div class="progress-stats">
@@ -314,6 +343,15 @@
   </div>
 </header>
 
+<div class="congrats-banner">
+  <div class="congrats-inner">
+    <div class="congrats-icon">🎓</div>
+    <div class="congrats-text">
+      <strong>Congratulations, Ava!</strong> On your graduation and your acceptance to <strong>Spelman College</strong> — a phenomenal milestone. Heading to an HBCU this fall, several high-value funding cycles are still open. A dedicated <strong>HBCU / Spelman</strong> section has been added to your tracker below.
+    </div>
+  </div>
+</div>
+
 <div class="filters-bar">
   <div class="filters-inner">
     <span class="filter-label">Category</span>
@@ -322,6 +360,7 @@
     <button class="chip" data-cat="June 2026">📅 June</button>
     <button class="chip" data-cat="Platforms">🏆 Platforms</button>
     <button class="chip" data-cat="Local">🎯 Local</button>
+    <button class="chip" data-cat="HBCU">🎓 HBCU</button>
     <div class="divider"></div>
     <span class="filter-label">Status</span>
     <button class="chip active" data-status="All">All</button>
@@ -357,9 +396,19 @@ const SCHOLARSHIPS = [
   { id:18, cat:"Local",     name:"Faith Community Scholarship",                    amount:"Varies",        deadline:"Ask now",           daysLeft:7, essay:false,  url:"—",                                                  desc:"Faith organizations frequently offer scholarships to members pursuing higher education. Ask your pastor, imam, or community leader directly." },
   { id:19, cat:"Local",     name:"Parent's Employer Scholarship",                  amount:"Varies",        deadline:"Ask this week",     daysLeft:7, essay:false,  url:"—",                                                  desc:"Many companies offer scholarships to employees' children. Have your parent check with HR this week." },
   { id:20, cat:"Local",     name:"Local Community Foundation",                     amount:"Varies",        deadline:"Varies",            daysLeft:null, essay:false, url:"Search: [city/county] community foundation scholarship 2026", desc:"Regional awards with far fewer applicants than national scholarships. Search your city or county community foundation." },
+  // HBCU / Spelman scholarships
+  { id:21, cat:"HBCU", name:"Annie Ibok Scholarship",                               amount:"$1,000",        deadline:"Check Fastweb",     daysLeft:null, essay:false, url:"https://www.fastweb.com/college-scholarships/articles/hbcu-scholarships", desc:"Earmarked for rising college freshmen attending HBCUs. Must be a resident of Washington State or California with a 3.0+ GPA." },
+  { id:22, cat:"HBCU", name:"WA State HBCU Alumni Networks",                        amount:"Varies",        deadline:"Contact directly",  daysLeft:null, essay:false, url:"—",                                                                        desc:"Reach out to local alumni chapters — Pacific Northwest Morehouse College Alumni Association or local Spelman alumnae chapters. They run book stipends and emergency grants for incoming freshmen not listed on broad search engines." },
+  { id:23, cat:"HBCU", name:"HBCU All-Stars Foundation Scholarship",                amount:"$250–$1,000",   deadline:"June 19, 2026",     daysLeft:10,   essay:true,  url:"https://www.instagram.com/p/DUO_gVzgZGA/",                                desc:"Open to graduating high school seniors attending an HBCU this fall. Deadline: June 19, 2026 at 11:59 PM." },
+  { id:24, cat:"HBCU", name:"HBCU CONNECT Student Scholarship Program",             amount:"$1,000",        deadline:"July 1, 2026",      daysLeft:22,   essay:false, url:"https://hbcuconnect.com/scholarship/",                                     desc:"For incoming high school graduates. Must provide proof of enrollment at an HBCU for the upcoming semester." },
+  { id:25, cat:"HBCU", name:"Development Fund for Black Students in Science & Tech", amount:"Up to $3,000", deadline:"June 15, 2026",     daysLeft:6,    essay:true,  url:"https://scholarships360.org/scholarships/scholarships-at-hbcus/",          desc:"For Black students enrolling in scientific, technical, or STEM-focused fields at designated HBCUs." },
+  { id:26, cat:"HBCU", name:"Spelman College Office of Financial Aid",               amount:"Varies",        deadline:"Contact now",       daysLeft:null, essay:false, url:"https://www.spelman.edu/financial-aid/finance-your-future.html",            desc:"Coordinate directly with the Financial Aid office to maximize gift aid. First-Year Merit Awards include the Academic Scholarship (half-tuition, 4 years), Dean's Scholarship (full tuition), and specialized awards like the Baldwin Richardson Foods Company Scholarship for business/entrepreneurship majors." },
+  { id:27, cat:"HBCU", name:"Spelman Scholarship Application Portal",                amount:"Multiple",      deadline:"Access this summer", daysLeft:null, essay:false, url:"https://www.spelman.edu/financial-aid/explore-types-of-financial-aid/scholarships/for-current-students.html", desc:"Once you receive your official student login credentials this summer, log in immediately. This unified system automatically pairs your profile with internal scholarships, donor-backed funds, and localized grants." },
+  { id:28, cat:"HBCU", name:"Baldwin Richardson Foods Company Scholarship",          amount:"Full tuition + fees + room & board (4 years)", deadline:"Contact FA Office now", daysLeft:null, essay:false, url:"https://www.spelman.edu/financial-aid/finance-your-future.html", desc:"Spelman's flagship institutional business award. Covers the full cost of tuition, fees, room, and board for all four years. Contact the Spelman Financial Aid Office immediately to ensure your admissions portfolio is flagged for review." },
+  { id:29, cat:"HBCU", name:"Morgan Stanley HBCU Scholars Program",                  amount:"Full tuition",  deadline:"Via Spelman network", daysLeft:null, essay:false, url:"https://www.spelman.edu/financial-aid/finance-your-future.html", desc:"Highly prestigious full-tuition scholarship specifically for students at Spelman, Morehouse, and Howard. Eligible incoming students are invited to apply directly through Spelman's internal network — flag your interest with the Financial Aid Office." },
 ];
 
-const CAT_LABELS = { "May 2026":"📅 May 2026", "June 2026":"📅 June 2026", "Platforms":"🏆 Platforms", "Local":"🎯 Local / Easy Wins" };
+const CAT_LABELS = { "May 2026":"📅 May 2026", "June 2026":"📅 June 2026", "Platforms":"🏆 Platforms", "Local":"🎯 Local / Easy Wins", "HBCU":"🎓 HBCU / Spelman" };
 const STATUS_OPTIONS = ["Not Started","In Progress","Submitted","Won","Not Eligible"];
 const STATUS_CLASS = { "Not Started":"none","In Progress":"progress","Submitted":"submitted","Won":"won","Not Eligible":"ineligible" };
 const STATUS_ICON  = { "Not Started":"","In Progress":"…","Submitted":"✓","Won":"★","Not Eligible":"✕" };
@@ -436,34 +485,39 @@ function buildCard(s) {
       <textarea class="notes-area" placeholder="Add notes — login info, essay ideas, account created…"
         oninput="setNote(${s.id},this.value)"
         onclick="event.stopPropagation()">${state.notes[s.id]||''}</textarea>
+      ${status === 'Not Eligible' ? `
+      <div class="panel-section-label" style="margin-top:18px">Remove Entry</div>
+      <button class="delete-btn" onclick="deleteEntry(${s.id});event.stopPropagation()">🗑 Remove from tracker</button>` : ''}
     </div>
   </div>`;
 }
 
 function render() {
   const main = document.getElementById('main-content');
-  const cats = ["May 2026","June 2026","Platforms","Local"];
+  const cats = ["May 2026","June 2026","Platforms","Local","HBCU"];
   const activeCats = filterCat === "All" ? cats : [filterCat];
 
   let html = '';
   let anyVisible = false;
 
   // Collect ineligible IDs upfront so we can exclude them from normal sections
+  const deletedIds = new Set(state.deleted || []);
   const ineligibleIds = new Set(
-    SCHOLARSHIPS.filter(s => state.statuses[s.id] === "Not Eligible").map(s => s.id)
+    SCHOLARSHIPS.filter(s => !deletedIds.has(s.id) && state.statuses[s.id] === "Not Eligible").map(s => s.id)
   );
 
   activeCats.forEach(cat => {
     const group = SCHOLARSHIPS.filter(s => {
       if (s.cat !== cat) return false;
-      if (ineligibleIds.has(s.id)) return false; // excluded — goes to bottom box
+      if (deletedIds.has(s.id)) return false;      // permanently removed
+      if (ineligibleIds.has(s.id)) return false;   // excluded — goes to bottom box
       if (filterStatus !== "All" && state.statuses[s.id] !== filterStatus) return false;
       return true;
     });
     if (group.length === 0) return;
     anyVisible = true;
 
-    html += `<div class="cat-section">
+    html += `<div class="cat-section${cat === 'HBCU' ? ' cat-hbcu' : ''}">
       <div class="cat-header">
         <span class="cat-title">${CAT_LABELS[cat]}</span>
         <div class="cat-line"></div>
@@ -542,9 +596,17 @@ function setNote(id, val) {
   updateProgress();
 }
 
+function deleteEntry(id) {
+  const s = SCHOLARSHIPS.find(s => s.id === id);
+  if (!confirm(`Remove "${s ? s.name : 'this scholarship'}" from the tracker?\n\nThis cannot be undone.`)) return;
+  state.deleted = state.deleted || [];
+  if (!state.deleted.includes(id)) state.deleted.push(id);
+  save(); openId = null; render();
+}
+
 function resetAll() {
   if (!confirm('Reset all statuses and notes? This cannot be undone.')) return;
-  state = { statuses:{}, notes:{} };
+  state = { statuses:{}, notes:{}, deleted:[] };
   SCHOLARSHIPS.forEach(s => { state.statuses[s.id] = "Not Started"; });
   save(); openId = null; render();
 }
