@@ -294,6 +294,94 @@
   .cat-section.cat-hbcu .cat-title { color: #2d2d8a; }
   .cat-section.cat-hbcu .cat-line  { background: #c8963a; }
 
+  /* Add Scholarship button in filters bar */
+  .add-btn {
+    margin-left: auto; padding: 6px 14px; border-radius: 99px;
+    border: 1.5px solid var(--green-med); background: var(--green-med);
+    color: var(--white); font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    display: flex; align-items: center; gap: 5px;
+    transition: all .15s; white-space: nowrap; flex-shrink: 0;
+  }
+  .add-btn:hover { background: var(--green-dark); border-color: var(--green-dark); }
+
+  /* Modal overlay */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.45); z-index: 100;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--white); border-radius: 16px;
+    width: 100%; max-width: 520px; max-height: 90vh;
+    overflow-y: auto; box-shadow: 0 24px 64px rgba(0,0,0,.25);
+    animation: modalIn .2s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes modalIn { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:none; } }
+  .modal-header {
+    padding: 20px 22px 16px; border-bottom: 1px solid var(--cream-mid);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-title { font-size: 16px; font-weight: 700; color: var(--text); }
+  .modal-close {
+    width: 28px; height: 28px; border-radius: 99px; border: none;
+    background: var(--cream); color: var(--text-mid); font-size: 16px;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background .15s;
+  }
+  .modal-close:hover { background: var(--cream-mid); }
+  .modal-body { padding: 18px 22px 22px; display: flex; flex-direction: column; gap: 14px; }
+  .form-row { display: flex; gap: 12px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+  .form-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--text-mid);
+  }
+  .form-input, .form-select, .form-textarea {
+    padding: 9px 12px; border-radius: 8px;
+    border: 1.5px solid var(--cream-mid); background: var(--cream);
+    font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text);
+    outline: none; transition: border-color .2s; width: 100%;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--green-light); background: var(--white);
+  }
+  .form-textarea { resize: vertical; min-height: 70px; line-height: 1.5; }
+  .form-select { cursor: pointer; }
+  .modal-footer {
+    padding: 14px 22px; border-top: 1px solid var(--cream-mid);
+    display: flex; gap: 10px; justify-content: flex-end;
+  }
+  .btn-cancel {
+    padding: 8px 18px; border-radius: 8px; border: 1.5px solid var(--cream-mid);
+    background: transparent; color: var(--text-mid); font-size: 13px;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s;
+  }
+  .btn-cancel:hover { border-color: #bbb; }
+  .btn-save {
+    padding: 8px 22px; border-radius: 8px; border: none;
+    background: var(--green-med); color: var(--white); font-size: 13px;
+    font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: background .15s;
+  }
+  .btn-save:hover { background: var(--green-dark); }
+
+  /* Code snippet box for GitHub instructions */
+  .code-hint {
+    background: #1e2a1e; color: #a3c4a8; font-family: 'Courier New', monospace;
+    font-size: 11px; border-radius: 8px; padding: 12px 14px; line-height: 1.7;
+    white-space: pre-wrap; word-break: break-all; margin-top: 4px;
+  }
+  .copy-snippet-btn {
+    margin-top: 6px; padding: 5px 12px; border-radius: 6px;
+    border: 1px solid var(--cream-mid); background: var(--cream);
+    color: var(--text-mid); font-size: 11px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; transition: all .15s;
+  }
+  .copy-snippet-btn:hover { background: var(--green-pale); border-color: var(--green-light); }
+  .copy-snippet-btn.copied { color: var(--green-med); border-color: var(--green-light); }
+
   /* Delete button */
   .delete-btn {
     padding: 7px 16px; border-radius: 8px;
@@ -369,6 +457,69 @@
     <button class="chip" data-status="Submitted">Submitted</button>
     <button class="chip" data-status="Won">Won</button>
     <button class="chip" data-status="Not Eligible">Not Eligible</button>
+    <button class="add-btn" onclick="openAddModal()">＋ Add Scholarship</button>
+  </div>
+</div>
+
+<!-- Add Scholarship Modal -->
+<div class="modal-overlay" id="add-modal" onclick="closeOnBackdrop(event)">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">➕ Add New Scholarship</span>
+      <button class="modal-close" onclick="closeAddModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Scholarship Name *</label>
+        <input class="form-input" id="f-name" type="text" placeholder="e.g. Gates Scholarship">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Amount</label>
+          <input class="form-input" id="f-amount" type="text" placeholder="e.g. $2,500">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Deadline</label>
+          <input class="form-input" id="f-deadline" type="text" placeholder="e.g. July 15, 2026">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Category</label>
+          <select class="form-select" id="f-cat">
+            <option value="May 2026">📅 May 2026</option>
+            <option value="June 2026">📅 June 2026</option>
+            <option value="Platforms">🏆 Platforms</option>
+            <option value="Local">🎯 Local / Easy Wins</option>
+            <option value="HBCU" selected>🎓 HBCU / Spelman</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Essay Required?</label>
+          <select class="form-select" id="f-essay">
+            <option value="false">No</option>
+            <option value="true">Yes</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Website / URL</label>
+        <input class="form-input" id="f-url" type="text" placeholder="https://example.com/scholarship">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes / Details</label>
+        <textarea class="form-textarea" id="f-desc" placeholder="Eligibility requirements, tips, what to prepare…"></textarea>
+      </div>
+      <div class="form-group" id="snippet-group" style="display:none">
+        <label class="form-label">📋 Copy this line to add permanently to the file</label>
+        <div class="code-hint" id="snippet-box"></div>
+        <button class="copy-snippet-btn" id="copy-btn" onclick="copySnippet()">Copy to clipboard</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+      <button class="btn-save" onclick="saveNewScholarship()">Add to Tracker</button>
+    </div>
   </div>
 </div>
 
@@ -406,6 +557,9 @@ const SCHOLARSHIPS = [
   { id:27, cat:"HBCU", name:"Spelman Scholarship Application Portal",                amount:"Multiple",      deadline:"Access this summer", daysLeft:null, essay:false, url:"https://www.spelman.edu/financial-aid/explore-types-of-financial-aid/scholarships/for-current-students.html", desc:"Once you receive your official student login credentials this summer, log in immediately. This unified system automatically pairs your profile with internal scholarships, donor-backed funds, and localized grants." },
   { id:28, cat:"HBCU", name:"Baldwin Richardson Foods Company Scholarship",          amount:"Full tuition + fees + room & board (4 years)", deadline:"Contact FA Office now", daysLeft:null, essay:false, url:"https://www.spelman.edu/financial-aid/finance-your-future.html", desc:"Spelman's flagship institutional business award. Covers the full cost of tuition, fees, room, and board for all four years. Contact the Spelman Financial Aid Office immediately to ensure your admissions portfolio is flagged for review." },
   { id:29, cat:"HBCU", name:"Morgan Stanley HBCU Scholars Program",                  amount:"Full tuition",  deadline:"Via Spelman network", daysLeft:null, essay:false, url:"https://www.spelman.edu/financial-aid/finance-your-future.html", desc:"Highly prestigious full-tuition scholarship specifically for students at Spelman, Morehouse, and Howard. Eligible incoming students are invited to apply directly through Spelman's internal network — flag your interest with the Financial Aid Office." },
+  // ── ADD NEW SCHOLARSHIPS HERE ──────────────────────────────────────────────
+  // Copy the line above, paste below this comment, and update the id (use 30, 31, etc.)
+  // Example: { id:30, cat:"HBCU", name:"My New Scholarship", amount:"$1,000", deadline:"Aug 1, 2026", daysLeft:null, essay:false, url:"https://example.com", desc:"Details here." },
 ];
 
 const CAT_LABELS = { "May 2026":"📅 May 2026", "June 2026":"📅 June 2026", "Platforms":"🏆 Platforms", "Local":"🎯 Local / Easy Wins", "HBCU":"🎓 HBCU / Spelman" };
@@ -416,12 +570,30 @@ const STORAGE_KEY  = "scholarship-tracker-2026";
 
 let state = { statuses:{}, notes:{} };
 
+// Custom scholarships added via the form (stored in localStorage)
+let customScholarships = [];
+
+// Combined list used everywhere
+function allScholarships() { return [...SCHOLARSHIPS, ...customScholarships]; }
+
 function load() {
-  try { const s = localStorage.getItem(STORAGE_KEY); if (s) state = JSON.parse(s); } catch(_){}
-  // init defaults
-  SCHOLARSHIPS.forEach(s => { if (!state.statuses[s.id]) state.statuses[s.id] = "Not Started"; if (!state.notes) state.notes = {}; });
+  try {
+    const s = localStorage.getItem(STORAGE_KEY);
+    if (s) state = JSON.parse(s);
+    const c = localStorage.getItem(STORAGE_KEY + '-custom');
+    if (c) customScholarships = JSON.parse(c);
+  } catch(_){}
+  allScholarships().forEach(s => {
+    if (!state.statuses[s.id]) state.statuses[s.id] = "Not Started";
+    if (!state.notes) state.notes = {};
+  });
 }
-function save() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(_){} }
+function save() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(STORAGE_KEY + '-custom', JSON.stringify(customScholarships));
+  } catch(_) {}
+}
 
 let filterCat = "All", filterStatus = "All", openId = null;
 
@@ -503,11 +675,11 @@ function render() {
   // Collect ineligible IDs upfront so we can exclude them from normal sections
   const deletedIds = new Set(state.deleted || []);
   const ineligibleIds = new Set(
-    SCHOLARSHIPS.filter(s => !deletedIds.has(s.id) && state.statuses[s.id] === "Not Eligible").map(s => s.id)
+    allScholarships().filter(s => !deletedIds.has(s.id) && state.statuses[s.id] === "Not Eligible").map(s => s.id)
   );
 
   activeCats.forEach(cat => {
-    const group = SCHOLARSHIPS.filter(s => {
+    const group = allScholarships().filter(s => {
       if (s.cat !== cat) return false;
       if (deletedIds.has(s.id)) return false;      // permanently removed
       if (ineligibleIds.has(s.id)) return false;   // excluded — goes to bottom box
@@ -532,7 +704,7 @@ function render() {
   });
 
   // Not Eligible box — always shown at bottom when any exist, regardless of filter
-  const ineligibleItems = SCHOLARSHIPS.filter(s => ineligibleIds.has(s.id));
+  const ineligibleItems = allScholarships().filter(s => ineligibleIds.has(s.id));
   if (ineligibleItems.length > 0) {
     anyVisible = true;
     html += `<div class="ineligible-section">
@@ -558,7 +730,7 @@ function render() {
 
 function updateProgress() {
   const deletedIds = new Set(state.deleted || []);
-  const active = SCHOLARSHIPS.filter(s => !deletedIds.has(s.id));
+  const active = allScholarships().filter(s => !deletedIds.has(s.id));
   const total = active.length;
   const submitted = active.filter(s => ["Submitted","Won"].includes(state.statuses[s.id])).length;
   const inProg = active.filter(s => state.statuses[s.id] === "In Progress").length;
@@ -588,7 +760,7 @@ function setStatus(id, status) {
   state.statuses[id] = status;
   save();
   render();
-  openId = id; // keep open
+  openId = id;
   render();
 }
 
@@ -600,18 +772,84 @@ function setNote(id, val) {
 }
 
 function deleteEntry(id) {
-  const s = SCHOLARSHIPS.find(s => s.id === id);
+  const s = allScholarships().find(s => s.id === id);
   if (!confirm(`Remove "${s ? s.name : 'this scholarship'}" from the tracker?\n\nThis cannot be undone.`)) return;
   state.deleted = state.deleted || [];
   if (!state.deleted.includes(id)) state.deleted.push(id);
+  // Also remove from customScholarships if it's a custom entry
+  customScholarships = customScholarships.filter(c => c.id !== id);
   save(); openId = null; render();
 }
 
 function resetAll() {
-  if (!confirm('Reset all statuses and notes? This cannot be undone.')) return;
+  if (!confirm('Reset all statuses, notes, and custom scholarships? This cannot be undone.')) return;
   state = { statuses:{}, notes:{}, deleted:[] };
-  SCHOLARSHIPS.forEach(s => { state.statuses[s.id] = "Not Started"; });
+  customScholarships = [];
+  allScholarships().forEach(s => { state.statuses[s.id] = "Not Started"; });
   save(); openId = null; render();
+}
+
+// ── Add Scholarship Modal ────────────────────────────────────────────────────
+function openAddModal() {
+  document.getElementById('add-modal').classList.add('open');
+  document.getElementById('snippet-group').style.display = 'none';
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-amount').value = '';
+  document.getElementById('f-deadline').value = '';
+  document.getElementById('f-url').value = '';
+  document.getElementById('f-desc').value = '';
+  document.getElementById('f-cat').value = 'HBCU';
+  document.getElementById('f-essay').value = 'false';
+  setTimeout(() => document.getElementById('f-name').focus(), 100);
+}
+
+function closeAddModal() {
+  document.getElementById('add-modal').classList.remove('open');
+}
+
+function closeOnBackdrop(e) {
+  if (e.target === document.getElementById('add-modal')) closeAddModal();
+}
+
+function saveNewScholarship() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { document.getElementById('f-name').focus(); return; }
+
+  const newId = 'c-' + Date.now();
+  const entry = {
+    id:       newId,
+    cat:      document.getElementById('f-cat').value,
+    name:     name,
+    amount:   document.getElementById('f-amount').value.trim() || 'Varies',
+    deadline: document.getElementById('f-deadline').value.trim() || 'Check website',
+    daysLeft: null,
+    essay:    document.getElementById('f-essay').value === 'true',
+    url:      document.getElementById('f-url').value.trim() || '—',
+    desc:     document.getElementById('f-desc').value.trim() || 'No details provided.',
+  };
+
+  customScholarships.push(entry);
+  state.statuses[newId] = "Not Started";
+  save();
+
+  // Show the code snippet for permanent file addition
+  const snippet = `  { id:${allScholarships().length}, cat:"${entry.cat}", name:"${entry.name}", amount:"${entry.amount}", deadline:"${entry.deadline}", daysLeft:null, essay:${entry.essay}, url:"${entry.url}", desc:"${entry.desc}" },`;
+  document.getElementById('snippet-box').textContent = snippet;
+  document.getElementById('snippet-group').style.display = 'block';
+  document.getElementById('copy-btn').textContent = 'Copy to clipboard';
+  document.getElementById('copy-btn').classList.remove('copied');
+
+  openId = newId;
+  render();
+}
+
+function copySnippet() {
+  const text = document.getElementById('snippet-box').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✓ Copied!';
+    btn.classList.add('copied');
+  });
 }
 
 // Filters
