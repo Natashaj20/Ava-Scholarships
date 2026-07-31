@@ -426,6 +426,8 @@
     font-family: 'DM Sans', sans-serif; transition: all .15s; white-space: nowrap;
   }
   .data-btn:hover { border-color: var(--green-light); color: var(--green-med); }
+  .data-btn.pastdue-btn { border-color: #fed7aa; color: #9a3412; background: #fff7ed; }
+  .data-btn.pastdue-btn:hover { border-color: #f97316; background: #ffedd5; }
 
   @media (max-width: 520px) {
     .card-main { gap: 10px; padding: 13px 12px; }
@@ -489,6 +491,7 @@
     <input id="search-box" class="search-box" type="text" placeholder="🔍 Search…" aria-label="Search scholarships">
     <button class="data-btn" onclick="exportData()" title="Export your progress as a JSON backup">⬇ Export</button>
     <button class="data-btn" onclick="importData()" title="Import a previously exported backup">⬆ Import</button>
+    <button class="data-btn pastdue-btn" onclick="clearPastDue()" title="Mark all past-due scholarships as Missed Deadline">⏰ Clear Past Due</button>
     <button class="add-btn" onclick="openAddModal()">＋ Add Scholarship</button>
   </div>
 </div>
@@ -922,6 +925,30 @@ function copySnippet() {
     btn.textContent = '✓ Copied!';
     btn.classList.add('copied');
   });
+}
+
+// ── Clear Past Due ────────────────────────────────────────────────────────────
+function clearPastDue() {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const pastDue = allScholarships().filter(s => {
+    if (!s.deadlineDate) return false;
+    if (ARCHIVED_STATUSES.has(state.statuses[s.id])) return false; // already archived
+    const due = new Date(s.deadlineDate + 'T00:00:00');
+    return due < today;
+  });
+
+  if (pastDue.length === 0) {
+    alert('No past-due scholarships found. You\'re all caught up!');
+    return;
+  }
+
+  const names = pastDue.map(s => `  • ${s.name} (${s.deadline})`).join('\n');
+  if (!confirm(`Mark ${pastDue.length} past-due scholarship${pastDue.length > 1 ? 's' : ''} as "Missed Deadline"?\n\n${names}\n\nThey will move to the archived section.`)) return;
+
+  pastDue.forEach(s => { state.statuses[s.id] = 'Missed Deadline'; });
+  save(); openId = null; render();
 }
 
 // ── Export / Import ──────────────────────────────────────────────────────────
